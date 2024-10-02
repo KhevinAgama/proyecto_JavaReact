@@ -2,16 +2,15 @@ package com.proyecto.poliza.prueba.Entidad;
 
 import java.time.LocalDate;
 
-import org.springframework.data.annotation.Id;
+//import org.springframework.data.annotation.Id;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-
-@Entity
+//import jakarta.persistence.Entity;
+//import jakarta.persistence.GeneratedValue;
+//import jakarta.persistence.GenerationType;
+//@Entity
 public class Poliza {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	//@Id
+	//@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int idPoliza;
 	
 	private String tipoSeguro;
