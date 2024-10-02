@@ -2,27 +2,33 @@ package com.proyecto.poliza.prueba.Entidad;
 
 import java.time.LocalDate;
 
-//import org.springframework.data.annotation.Id;
-
-//import jakarta.persistence.Entity;
-//import jakarta.persistence.GeneratedValue;
-//import jakarta.persistence.GenerationType;
-//@Entity
+//Capa Modelo
 public class Poliza {
-	//@Id
-	//@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private int idPoliza;
+	
+	private Long idPoliza;
 	
 	private String tipoSeguro;
 	private LocalDate fechaInicio;
 	private LocalDate fechaVencimiento;
 	private Double montoAsegurado;
-	private String detallesAdicionales;
+	private Object detallesAdicionales;
 	
-	public int getIdPoliza() {
+	
+	
+	public Poliza(Long idPoliza, String tipoSeguro, LocalDate fechaInicio, LocalDate fechaVencimiento,
+			Double montoAsegurado, Object detallesAdicionales) {
+		super();
+		this.idPoliza = idPoliza;
+		this.tipoSeguro = tipoSeguro;
+		this.fechaInicio = fechaInicio;
+		this.fechaVencimiento = fechaVencimiento;
+		this.montoAsegurado = montoAsegurado;
+		this.detallesAdicionales = detallesAdicionales;
+	}
+	public Long getIdPoliza() {
 		return idPoliza;
 	}
-	public void setIdPoliza(int idPoliza) {
+	public void setIdPoliza(Long idPoliza) {
 		this.idPoliza = idPoliza;
 	}
 	public String getTipoSeguro() {
@@ -49,10 +55,10 @@ public class Poliza {
 	public void setMontoAsegurado(Double montoAsegurado) {
 		this.montoAsegurado = montoAsegurado;
 	}
-	public String getDetallesAdicionales() {
+	public Object getDetallesAdicionales() {
 		return detallesAdicionales;
 	}
-	public void setDetallesAdicionales(String detallesAdicionales) {
+	public void setDetallesAdicionales(Object detallesAdicionales) {
 		this.detallesAdicionales = detallesAdicionales;
 	}
 	
