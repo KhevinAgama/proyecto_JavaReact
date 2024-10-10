@@ -9,52 +9,58 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.proyecto.poliza.prueba.Entidad.Poliza;
+import com.proyecto.poliza.prueba.entidad.Poliza;
 import com.proyecto.poliza.prueba.exception.PolizaNotFoundException;
+import com.proyecto.poliza.prueba.repositorios.PolizaRepository;
 
 //Capa Negocio
 @Service
 public class PolizaService {
 	
-	private List<Poliza> polizas = new ArrayList<>();  
-	private Long currentId = 1L;
+	@Autowired
+	private final PolizaRepository polizaRepository;
+	
+	public PolizaService(PolizaRepository polizaRepository) {
+		this.polizaRepository = polizaRepository;
+	}
 	
 	//Creo mi Poliza y guardo en mi lista
 	public Poliza crearPoliza(Poliza poliza) {
-		poliza.setIdPoliza(currentId++);
-		polizas.add(poliza);
-		return poliza;
+		return polizaRepository.save(poliza);
 	}
 	
 	//Listar Polizas
 	public List<Poliza> consultarPolizas(){
-		return polizas;
+		return polizaRepository.findAll();
+	}
+	
+	//Buscar por id
+	public Poliza obtenerPolizaPorId(Long id) {
+		return polizaRepository.findById(id).orElseThrow(()
+				-> new RuntimeException("Poliza no encontrada."));
 	}
 	
 	//actualizar Polizas
 	public Poliza actualizarPoliza(Long id, Poliza polizaActualizada) {
-		Optional<Poliza> polizaOptional = polizas.stream().filter(p -> p.getIdPoliza().equals(id)).findFirst();		
-		if(! polizaOptional.isPresent()) {
-			//throw new EntityNotFoundException(""); --alternativa por el JPA
-			throw new PolizaNotFoundException("Poliza no encontrada con el ID "+ id);
-		}
 		
-		Poliza poliza = polizaOptional.get();
 		
-		poliza.setFechaInicio(polizaActualizada.getFechaInicio());
-		poliza.setFechaVencimiento(polizaActualizada.getFechaVencimiento());
-		poliza.setMontoAsegurado(polizaActualizada.getMontoAsegurado());
-		poliza.setDetallesAdicionales(polizaActualizada.getDetallesAdicionales());
+		Poliza poliza = polizaRepository.findById(id).orElseThrow(()
+				-> new RuntimeException("Poliza no encontrada."));
 		
-		return poliza;
+		poliza.setTipo_seguro(polizaActualizada.getTipo_seguro());
+		poliza.setFecha_inicio(polizaActualizada.getFecha_inicio());
+		poliza.setFecha_vencimiento(polizaActualizada.getFecha_vencimiento());
+		poliza.setMonto_asegurado(polizaActualizada.getMonto_asegurado());
+		poliza.setDetalles_adicionales(polizaActualizada.getDetalles_adicionales());
+		
+		return polizaRepository.save(poliza);
 	}
 	
 	//eliminar Poliza
 	public void eliminarPoliza(Long id) {
-		boolean delete = polizas.removeIf(polizaEliminar -> polizaEliminar.getIdPoliza().equals(id));
-		if(!delete) {
-			throw new PolizaNotFoundException("No se encuentra registrada la ID: " + id);
-		}
+		Poliza poliza = polizaRepository.findById(id).orElseThrow(()
+				-> new RuntimeException("Poliza no encontrada."));
+		polizaRepository.delete(poliza);
 	}
 	
 	
