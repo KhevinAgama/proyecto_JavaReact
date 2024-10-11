@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.proyecto.poliza.prueba.dto.PolizaDTO;
 import com.proyecto.poliza.prueba.entidad.Poliza;
 import com.proyecto.poliza.prueba.servicio.PolizaService;
 
@@ -36,13 +37,13 @@ public class PolizaController {
 	}
 	
 	@PostMapping("/crearPoliza")
-	public Poliza crearPoliza(@RequestBody Poliza poliza){
-		return polizaService.crearPoliza(poliza);
+	public PolizaDTO crearPoliza(@RequestBody PolizaDTO polizaDTO){
+		return polizaService.crearPoliza(polizaDTO);
 		
 	}
 	
 	@GetMapping("/listarPoliza")
-	public List<Poliza> consultarPolizas(){
+	public List<PolizaDTO> consultarPolizas(){
 		return polizaService.consultarPolizas();
 	}
 	
@@ -52,9 +53,9 @@ public class PolizaController {
 	} 
 	
 	@PutMapping("/actualizarPoliza/{id}")
-	public Poliza actualizarPoliza(@PathVariable Long id, 
-													@RequestBody Poliza polizaActualizada){
-		return polizaService.actualizarPoliza(id, polizaActualizada);
+	public PolizaDTO actualizarPoliza(@PathVariable Long id, 
+													@RequestBody PolizaDTO polizaDTOActualizada){
+		return polizaService.actualizarPoliza(id, polizaDTOActualizada);
 		
 	} 
 	
