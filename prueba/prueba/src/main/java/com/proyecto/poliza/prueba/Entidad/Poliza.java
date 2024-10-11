@@ -1,6 +1,9 @@
 package com.proyecto.poliza.prueba.entidad;
 
 import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.*;
 
 //Capa Modelo
@@ -18,9 +21,13 @@ public class Poliza {
 	private String tipo_seguro;
 	
 	@Column(name="fecha_inicio", nullable = false)
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@Temporal(TemporalType.DATE)
 	private LocalDate fecha_inicio;
 	
 	@Column(name="fecha_vencimiento", nullable = false)
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	@Temporal(TemporalType.DATE)
 	private LocalDate fecha_vencimiento;
 	
 	@Column(name="monto_asegurado", nullable = false)
