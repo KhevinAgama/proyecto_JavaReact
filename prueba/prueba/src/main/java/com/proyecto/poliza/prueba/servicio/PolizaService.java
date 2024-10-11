@@ -113,7 +113,7 @@ public class PolizaService {
 		polizaDTO.setFecha_vencimiento(poliza.getFecha_vencimiento());
 		polizaDTO.setMonto_asegurado(poliza.getMonto_asegurado());
 		polizaDTO.setDetalles_adicionales(poliza.getDetalles_adicionales());
-		polizaDTO.setId_usuario(poliza.getId_poliza());
+		polizaDTO.setId_usuario(poliza.getUsuario().getId_usuario());
 			
 		return polizaDTO;
 	}
