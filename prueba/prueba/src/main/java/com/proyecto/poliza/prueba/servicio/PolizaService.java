@@ -7,7 +7,10 @@ import java.util.Optional;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.proyecto.poliza.prueba.dto.PolizaDTO;
 import com.proyecto.poliza.prueba.entidad.Poliza;
@@ -15,6 +18,8 @@ import com.proyecto.poliza.prueba.entidad.Usuario;
 import com.proyecto.poliza.prueba.exception.PolizaNotFoundException;
 import com.proyecto.poliza.prueba.repositorios.PolizaRepository;
 import com.proyecto.poliza.prueba.repositorios.UsuarioRepository;
+
+import jakarta.transaction.Transactional;
 
 //Capa Negocio
 @Service
@@ -32,16 +37,32 @@ public class PolizaService {
 	}
 	
 	//Creo mi Poliza y guardo en mi lista
+	@Transactional //si hay un error en el codigo, revierte los cambios en la BD 
 	public PolizaDTO crearPoliza(PolizaDTO polizaDTO) {
 		
-		//Validacon de usuario nulo
-		if(polizaDTO.getId_usuario() == null) {
-			throw new RuntimeException("El ID del usuario no debe ser null.");
+		//Validacion  de que la fecha vencimiento sea posterior a la fecha inicio
+		if(polizaDTO.getFecha_vencimiento().isBefore(polizaDTO.getFecha_inicio())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"La fecha de vencimiento debe ser posterior a la fecha de inicio.");
 		}
+		
+		//Validacion de nulo
+		if(polizaDTO.getId_usuario() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID del usuario no debe ser null.");
+		}else if (polizaDTO.getTipo_seguro() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Tipo de Seguro no debe ser null.");
+		}else if (polizaDTO.getFecha_inicio() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La Fecha de inicio no debe ser null.");
+		}else if (polizaDTO.getFecha_vencimiento() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La Fecha de vencimiento no debe ser null.");
+		}else if (polizaDTO.getMonto_asegurado() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Monto Asegurado no debe ser null.");
+		}
+		
 		
 		//Validacion de usuario existente
 		Usuario usuario = usuarioRepository.findById(polizaDTO.getId_usuario()).
-				orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + polizaDTO.getId_usuario()));
+				orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
+						"El usuario con ID " + polizaDTO.getId_usuario() + " no existe."));
 		
 		//Crear nueva poliza
 		Poliza poliza = new Poliza();
@@ -65,24 +86,47 @@ public class PolizaService {
 	}
 	
 	//Buscar por id
-	public Poliza obtenerPolizaPorId(Long id) {
-		return polizaRepository.findById(id).orElseThrow(()
-				-> new RuntimeException("Poliza no encontrada."));
+	public PolizaDTO obtenerPolizaPorId(Long id) {
+		return polizaRepository.findById(id)
+				.map(this::convertirEntidadDTO)
+				.orElseThrow(() ->
+				new ResponseStatusException(HttpStatus.NOT_FOUND,
+						"Poliza no encontrada."));
 	}
 	
 	//actualizar Polizas
+	@Transactional //si hay un error en el codigo, revierte los cambios en la BD
 	public PolizaDTO actualizarPoliza(Long id, PolizaDTO polizaDTOActualizada) {
 		
-		
+		//Validacion de ID Poliza
 		Poliza poliza = polizaRepository.findById(id).orElseThrow(()
-				-> new IllegalArgumentException("Poliza no encontrada con el ID: "+ id));
+				-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Poliza no encontrada con el ID: "+ id));
 		
+		//Validacion de nulo
+		if(polizaDTOActualizada.getId_usuario() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID del usuario no debe ser null.");
+		}else if (polizaDTOActualizada.getTipo_seguro() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Tipo de Seguro no debe ser null.");
+		}else if (polizaDTOActualizada.getFecha_inicio() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La Fecha de inicio no debe ser null.");
+		}else if (polizaDTOActualizada.getFecha_vencimiento() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La Fecha de vencimiento no debe ser null.");
+		}else if (polizaDTOActualizada.getMonto_asegurado() == null) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Monto Asegurado no debe ser null.");
+		}
+				
+		//Validacion de existencia de usuario	
 		if(polizaDTOActualizada.getId_usuario() != null) {
 			Usuario usuario = usuarioRepository.findById(polizaDTOActualizada.getId_usuario()).orElseThrow(
-					() -> new IllegalArgumentException("El usuario con ID: "+ polizaDTOActualizada.getId_usuario()
-					+"no existe."));
+					() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,"El usuario con ID "+ polizaDTOActualizada.getId_usuario()
+					+" no existe."));
 			poliza.setUsuario(usuario);
 		}
+		
+		//Validacion de fecha de vencimiento
+		if(polizaDTOActualizada.getFecha_vencimiento().isBefore(polizaDTOActualizada.getFecha_inicio())) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha de vencimiento debe ser posterior a la fecha de inicio.");
+		} 
 		
 		poliza.setTipo_seguro(polizaDTOActualizada.getTipo_seguro());
 		poliza.setFecha_inicio(polizaDTOActualizada.getFecha_inicio());
@@ -98,7 +142,7 @@ public class PolizaService {
 	//eliminar Poliza
 	public void eliminarPoliza(Long id) {
 		Poliza poliza = polizaRepository.findById(id).orElseThrow(()
-				-> new RuntimeException("Poliza no encontrada."));
+				-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Poliza no encontrada."));
 		polizaRepository.delete(poliza);
 	}
 	

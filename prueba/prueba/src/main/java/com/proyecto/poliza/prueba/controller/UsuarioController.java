@@ -2,6 +2,9 @@ package com.proyecto.poliza.prueba.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,8 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.proyecto.poliza.prueba.entidad.Usuario;
 import com.proyecto.poliza.prueba.servicio.UsuarioService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/usuarios")
+@Validated
 public class UsuarioController {
 
 	private final UsuarioService usuarioService;
@@ -25,8 +31,9 @@ public class UsuarioController {
 	}
 	
 	@PostMapping("/crearUsuario")
-	public Usuario crearUsuario(@RequestBody Usuario usuario) {
-		return usuarioService.crearUsuario(usuario);
+	public ResponseEntity<Usuario> crearUsuario(@Valid @RequestBody Usuario usuario) {
+		Usuario nuevoUsuario = usuarioService.crearUsuario(usuario);
+		return new ResponseEntity<>(nuevoUsuario,HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/obtenerUsuarios")
@@ -35,18 +42,21 @@ public class UsuarioController {
 	}
 	
 	@GetMapping("/obtenerUsuarios/{id}")
-	public Usuario obtenerUsuarioPorId(@PathVariable Long id) {
-		return usuarioService.ObtenerUsuarioPorId(id);
+	public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable Long id) {
+		Usuario usuario = usuarioService.ObtenerUsuarioPorId(id);
+		return ResponseEntity.ok(usuario);
 	}
 	
 	@PutMapping("/actualizarUsuario/{id}")
-	public Usuario actualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
-		return usuarioService.actualizarUsuario(id, usuario);
+	public ResponseEntity<Usuario> actualizarUsuario(@PathVariable Long id, @Valid @RequestBody Usuario usuario) {
+		Usuario usuarioActualizado =usuarioService.actualizarUsuario(id, usuario); 
+		return ResponseEntity.ok(usuarioActualizado);
 	}
 	
 	@DeleteMapping("/eliminarUsuario/{id}")
-	public void eliminarUsuario(@PathVariable Long id) {
+	public ResponseEntity<Void> eliminarUsuario(@PathVariable Long id) {
 		usuarioService.eliminarUsuario(id);
+		return ResponseEntity.noContent().build();
 	}
 	
 }

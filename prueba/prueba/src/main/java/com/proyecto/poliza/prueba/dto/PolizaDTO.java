@@ -4,14 +4,34 @@ import java.time.LocalDate;
 
 import com.proyecto.poliza.prueba.entidad.Poliza;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Size;
+
 public class PolizaDTO {
 
 	private Long id_poliza;
+	
+	@NotBlank(message = "El tipo de seguro no puede estar vacío.")
 	private String tipo_seguro;
+	
+	@NotNull(message = "La fecha de inicio no puede ser nula.")
+	@PastOrPresent(message = "La fecha de inicio no puede ser en el futuro.")
 	private LocalDate fecha_inicio;
+	
+	@NotNull(message = "La fecha de vencimiento no puede ser nula.")
 	private LocalDate fecha_vencimiento;
+	
+	@NotNull(message = "El monto asegurado no puede ser nulo.")
+	@DecimalMin(value = "0.00", inclusive = false, message = "El monto asegurado debe ser mayor a 0.")
 	private Double monto_asegurado;
+	
+	@Size(max = 500, message = "Los detalles adicionales deben tener como máximo 500 caracteres.")
 	private String detalles_adicionales;
+	
+	@NotNull(message = "El ID de Usuario no puede ser nulo.")
 	private Long id_usuario;
 	
 	
