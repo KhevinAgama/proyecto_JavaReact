@@ -12,13 +12,13 @@ public class Usuario {
 	@Column(name= "id_usuario")
 	private Long id_usuario;
 	
-	@Column(name= "nombre", nullable = false)
+	@Column(name= "nombre", nullable = false, unique = true)
 	private String nombre;
 	
-	@Column(name= "correo", nullable = false)
+	@Column(name= "correo", nullable = false, unique = true)
 	private String correo;
 	
-	@Column(name= "dni", nullable = false, length = 8)
+	@Column(name= "dni", nullable = false, length = 8, unique = true)
 	private String dni;
 	
 	//Constructor vacio, requerido por JPA

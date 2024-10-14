@@ -17,6 +17,7 @@ public class Poliza {
 	@Column(name= "id_poliza")
 	private Long id_poliza;
 	
+	
 	@Column(name="tipo_seguro", nullable = false)
 	private String tipo_seguro;
 	

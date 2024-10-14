@@ -1,21 +1,17 @@
 package com.proyecto.poliza.prueba.servicio;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-
-
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.proyecto.poliza.prueba.dto.PolizaDTO;
 import com.proyecto.poliza.prueba.entidad.Poliza;
 import com.proyecto.poliza.prueba.entidad.Usuario;
-import com.proyecto.poliza.prueba.exception.PolizaNotFoundException;
+import com.proyecto.poliza.prueba.exception.BadRequestException;
+import com.proyecto.poliza.prueba.exception.ResourceNotFoundException;
 import com.proyecto.poliza.prueba.repositorios.PolizaRepository;
 import com.proyecto.poliza.prueba.repositorios.UsuarioRepository;
 
@@ -30,6 +26,7 @@ public class PolizaService {
 	
 	@Autowired
 	private UsuarioRepository usuarioRepository;
+	//private static final Logger logger = LoggerFactory.getLogger(PolizaService.class);
 	
 	public PolizaService(PolizaRepository polizaRepository, UsuarioRepository usuarioRepository) {
 		this.polizaRepository = polizaRepository;
@@ -39,45 +36,56 @@ public class PolizaService {
 	//Creo mi Poliza y guardo en mi lista
 	@Transactional //si hay un error en el codigo, revierte los cambios en la BD 
 	public PolizaDTO crearPoliza(PolizaDTO polizaDTO) {
+	
+		//Validacion de nulo
+		if(polizaDTO.getId_usuario() == null) {
+			throw new BadRequestException("El ID del usuario no debe ser null.");
+		}else if (polizaDTO.getTipo_seguro() == null) {
+			throw new BadRequestException("El Tipo de Seguro no debe ser null.");
+		}else if (polizaDTO.getFecha_inicio() == null) {
+			throw new BadRequestException("La Fecha de inicio no debe ser null.");
+		}else if (polizaDTO.getFecha_vencimiento() == null) {
+			throw new BadRequestException("La Fecha de vencimiento no debe ser null.");
+		}else if (polizaDTO.getMonto_asegurado() == null) {
+			throw new BadRequestException("El Monto Asegurado no debe ser null.");
+		}
 		
 		//Validacion  de que la fecha vencimiento sea posterior a la fecha inicio
 		if(polizaDTO.getFecha_vencimiento().isBefore(polizaDTO.getFecha_inicio())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"La fecha de vencimiento debe ser posterior a la fecha de inicio.");
+			throw new BadRequestException("La fecha de vencimiento debe ser posterior a la fecha de inicio.");
 		}
-		
-		//Validacion de nulo
-		if(polizaDTO.getId_usuario() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID del usuario no debe ser null.");
-		}else if (polizaDTO.getTipo_seguro() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Tipo de Seguro no debe ser null.");
-		}else if (polizaDTO.getFecha_inicio() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La Fecha de inicio no debe ser null.");
-		}else if (polizaDTO.getFecha_vencimiento() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La Fecha de vencimiento no debe ser null.");
-		}else if (polizaDTO.getMonto_asegurado() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Monto Asegurado no debe ser null.");
-		}
-		
 		
 		//Validacion de usuario existente
 		Usuario usuario = usuarioRepository.findById(polizaDTO.getId_usuario()).
 				orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
 						"El usuario con ID " + polizaDTO.getId_usuario() + " no existe."));
 		
-		//Crear nueva poliza
-		Poliza poliza = new Poliza();
+		System.out.println(polizaDTO.getTipo_seguro());
 		
-		poliza.setTipo_seguro(polizaDTO.getTipo_seguro());
-		poliza.setFecha_inicio(polizaDTO.getFecha_inicio());
-		poliza.setFecha_vencimiento(polizaDTO.getFecha_vencimiento());
-		poliza.setMonto_asegurado(polizaDTO.getMonto_asegurado());
-		poliza.setDetalles_adicionales(polizaDTO.getDetalles_adicionales());
-		
-		poliza.setUsuario(usuario);
-		
-		Poliza polizaGuardadaPoliza = polizaRepository.save(poliza);
-		
-		return convertirEntidadDTO(polizaGuardadaPoliza);
+		//validacion de tipo de Seguro
+		if(polizaDTO.getTipo_seguro().equalsIgnoreCase("auto") || 
+				polizaDTO.getTipo_seguro().equalsIgnoreCase("inmueble") || 
+						polizaDTO.getTipo_seguro().equalsIgnoreCase("celular")) {
+
+			//Crear nueva poliza
+			Poliza poliza = new Poliza();
+				
+			poliza.setTipo_seguro(polizaDTO.getTipo_seguro());
+			poliza.setFecha_inicio(polizaDTO.getFecha_inicio());
+			poliza.setFecha_vencimiento(polizaDTO.getFecha_vencimiento());
+			poliza.setMonto_asegurado(polizaDTO.getMonto_asegurado());
+			poliza.setDetalles_adicionales(polizaDTO.getDetalles_adicionales());
+			
+			poliza.setUsuario(usuario);
+			
+			Poliza polizaGuardadaPoliza = polizaRepository.save(poliza);
+			
+			return convertirEntidadDTO(polizaGuardadaPoliza);
+			
+		}else {
+			throw new BadRequestException("El Tipo de Seguro debe ser auto, inmueble o celular.");
+		}
+	
 	}
 	
 	//Listar Polizas
@@ -88,44 +96,42 @@ public class PolizaService {
 	//Buscar por id
 	public PolizaDTO obtenerPolizaPorId(Long id) {
 		return polizaRepository.findById(id)
-				.map(this::convertirEntidadDTO)
-				.orElseThrow(() ->
-				new ResponseStatusException(HttpStatus.NOT_FOUND,
-						"Poliza no encontrada."));
+					.map(this::convertirEntidadDTO)
+					.orElseThrow(() ->
+					new ResourceNotFoundException("Poliza no encontrada."));
+		
 	}
 	
 	//actualizar Polizas
 	@Transactional //si hay un error en el codigo, revierte los cambios en la BD
 	public PolizaDTO actualizarPoliza(Long id, PolizaDTO polizaDTOActualizada) {
-		
 		//Validacion de ID Poliza
 		Poliza poliza = polizaRepository.findById(id).orElseThrow(()
-				-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Poliza no encontrada con el ID: "+ id));
-		
-		//Validacion de nulo
+				-> new ResourceNotFoundException("Póliza no encontrada con el ID: "+ id));
+					//Validacion de nulo
 		if(polizaDTOActualizada.getId_usuario() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El ID del usuario no debe ser null.");
+			throw new BadRequestException("El ID del usuario no debe ser null.");
 		}else if (polizaDTOActualizada.getTipo_seguro() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Tipo de Seguro no debe ser null.");
+			throw new BadRequestException("El Tipo de Seguro no debe ser null.");
 		}else if (polizaDTOActualizada.getFecha_inicio() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La Fecha de inicio no debe ser null.");
+			throw new BadRequestException("La Fecha de inicio no debe ser null.");
 		}else if (polizaDTOActualizada.getFecha_vencimiento() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La Fecha de vencimiento no debe ser null.");
+			throw new BadRequestException("La Fecha de vencimiento no debe ser null.");
 		}else if (polizaDTOActualizada.getMonto_asegurado() == null) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El Monto Asegurado no debe ser null.");
+			throw new BadRequestException("El Monto Asegurado no debe ser null.");
 		}
 				
 		//Validacion de existencia de usuario	
 		if(polizaDTOActualizada.getId_usuario() != null) {
 			Usuario usuario = usuarioRepository.findById(polizaDTOActualizada.getId_usuario()).orElseThrow(
-					() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,"El usuario con ID "+ polizaDTOActualizada.getId_usuario()
+					() -> new BadRequestException("El usuario con ID "+ polizaDTOActualizada.getId_usuario()
 					+" no existe."));
 			poliza.setUsuario(usuario);
 		}
-		
+			
 		//Validacion de fecha de vencimiento
 		if(polizaDTOActualizada.getFecha_vencimiento().isBefore(polizaDTOActualizada.getFecha_inicio())) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La fecha de vencimiento debe ser posterior a la fecha de inicio.");
+			throw new BadRequestException("La fecha de vencimiento debe ser posterior a la fecha de inicio.");
 		} 
 		
 		poliza.setTipo_seguro(polizaDTOActualizada.getTipo_seguro());
@@ -137,13 +143,14 @@ public class PolizaService {
 		Poliza polizaActualizada = polizaRepository.save(poliza);
 		
 		return new PolizaDTO(polizaActualizada);
+		
 	}
 	
 	//eliminar Poliza
 	public void eliminarPoliza(Long id) {
 		Poliza poliza = polizaRepository.findById(id).orElseThrow(()
-				-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Poliza no encontrada."));
-		polizaRepository.delete(poliza);
+					-> new ResourceNotFoundException("Poliza no encontrada."));
+			polizaRepository.delete(poliza);
 	}
 	
 	

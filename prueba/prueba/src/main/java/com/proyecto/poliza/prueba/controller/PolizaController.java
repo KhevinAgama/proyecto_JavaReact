@@ -25,7 +25,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/polizas")
-@Validated
 public class PolizaController {
 	
 	@Autowired
