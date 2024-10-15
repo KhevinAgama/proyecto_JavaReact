@@ -49,9 +49,39 @@ public class PolizaDTO {
 		this.detalles_adicionales = poliza.getDetalles_adicionales();
 		this.id_usuario = poliza.getUsuario().getId_usuario();
 	}
+	
+	
+	
+	
+	public PolizaDTO(Long id_poliza, @NotBlank(message = "El tipo de seguro no puede estar vacío.") 
+			String tipo_seguro,
+			@NotNull(message = "La fecha de inicio no puede ser nula.") @PastOrPresent(message = "La fecha de inicio no puede ser en el futuro.") LocalDate fecha_inicio,
+			@NotNull(message = "La fecha de vencimiento no puede ser nula.") @Future(message = "La fecha de vencimiento debe ser una fecha futura.") LocalDate fecha_vencimiento,
+			@NotNull(message = "El monto asegurado no puede ser nulo.") @DecimalMin(value = "0.00", inclusive = false, message = "El monto asegurado debe ser mayor a 0.") Double monto_asegurado,
+			@Size(max = 500, message = "Los detalles adicionales deben tener como máximo 500 caracteres.") String detalles_adicionales,
+			@NotNull(message = "El ID de Usuario no puede ser nulo.") Long id_usuario) {
+		super();
+		this.id_poliza = id_poliza;
+		this.tipo_seguro = tipo_seguro;
+		this.fecha_inicio = fecha_inicio;
+		this.fecha_vencimiento = fecha_vencimiento;
+		this.monto_asegurado = monto_asegurado;
+		this.detalles_adicionales = detalles_adicionales;
+		this.id_usuario = id_usuario;
+	}
+
+
+
 
 	public PolizaDTO() {
 	}
+
+	//public PolizaDTO(String tipo_seguro, 
+	//		LocalDate fecha_inicio, LocalDate fecha_vencimiento, 
+	//		Double monto_asegurado, String detalles_adicionales) {
+		// TODO Auto-generated constructor stub
+	//}
+
 
 	public Long getId_poliza() {
 		return id_poliza;

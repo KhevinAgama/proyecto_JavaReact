@@ -60,7 +60,7 @@ public class PolizaService {
 				orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, 
 						"El usuario con ID " + polizaDTO.getId_usuario() + " no existe."));
 		
-		System.out.println(polizaDTO.getTipo_seguro());
+		//System.out.println(polizaDTO.getTipo_seguro());
 		
 		//validacion de tipo de Seguro
 		if(polizaDTO.getTipo_seguro().equalsIgnoreCase("auto") || 
@@ -150,7 +150,8 @@ public class PolizaService {
 	public void eliminarPoliza(Long id) {
 		Poliza poliza = polizaRepository.findById(id).orElseThrow(()
 					-> new ResourceNotFoundException("Poliza no encontrada."));
-			polizaRepository.delete(poliza);
+			//polizaRepository.delete(poliza);
+		polizaRepository.deleteById(id);
 	}
 	
 	
