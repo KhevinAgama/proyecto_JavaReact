@@ -10,7 +10,8 @@ import com.proyecto.poliza.prueba.exception.BadRequestException;
 import com.proyecto.poliza.prueba.exception.ResourceNotFoundException;
 import com.proyecto.poliza.prueba.repositorios.UsuarioRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
+//import jakarta.transaction.Transactional;
 
 @Service
 public class UsuarioService {
@@ -57,6 +58,7 @@ public class UsuarioService {
 		return usuarioRepository.findAll();
 	}
 	
+	@Transactional(readOnly=true)
 	public Usuario ObtenerUsuarioPorId(Long id) {
 		return usuarioRepository.findById(id).orElseThrow(()->
 			new ResourceNotFoundException("Usuario no encontrado"));

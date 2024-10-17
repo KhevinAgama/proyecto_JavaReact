@@ -15,7 +15,8 @@ import com.proyecto.poliza.prueba.exception.ResourceNotFoundException;
 import com.proyecto.poliza.prueba.repositorios.PolizaRepository;
 import com.proyecto.poliza.prueba.repositorios.UsuarioRepository;
 
-import jakarta.transaction.Transactional;
+//import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 //Capa Negocio
 @Service
@@ -94,6 +95,7 @@ public class PolizaService {
 	}
 	
 	//Buscar por id
+	@Transactional(readOnly=true)
 	public PolizaDTO obtenerPolizaPorId(Long id) {
 		return polizaRepository.findById(id)
 					.map(this::convertirEntidadDTO)
