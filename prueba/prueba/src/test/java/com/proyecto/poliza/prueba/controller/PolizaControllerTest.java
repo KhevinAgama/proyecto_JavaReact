@@ -22,14 +22,18 @@ import static org.mockito.Mockito.*;
 
 class PolizaControllerTest {
 
+	//Declarar un objeto simulado (version simulada)
     @Mock
     private PolizaService polizaService;
 
+    //Declarar la clase a testear
     @InjectMocks
     private PolizaController polizaController;
 
+    //Declarar el contenido antes de ejecutar el test
     @BeforeEach
     void setUp() {
+    	//inicializamos los mockitos declarados arriba
         MockitoAnnotations.openMocks(this);
     }
 

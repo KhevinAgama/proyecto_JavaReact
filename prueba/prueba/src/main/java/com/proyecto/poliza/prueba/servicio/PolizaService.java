@@ -134,15 +134,26 @@ public class PolizaService {
 			throw new BadRequestException("La fecha de vencimiento debe ser posterior a la fecha de inicio.");
 		} 
 		
-		poliza.setTipo_seguro(polizaDTOActualizada.getTipo_seguro());
-		poliza.setFecha_inicio(polizaDTOActualizada.getFecha_inicio());
-		poliza.setFecha_vencimiento(polizaDTOActualizada.getFecha_vencimiento());
-		poliza.setMonto_asegurado(polizaDTOActualizada.getMonto_asegurado());
-		poliza.setDetalles_adicionales(polizaDTOActualizada.getDetalles_adicionales());
-		//poliza.setUsuario(polizaActualizada.getUsuario());
-		Poliza polizaActualizada = polizaRepository.save(poliza);
+		//validacion de tipo de Seguro
+		if(polizaDTOActualizada.getTipo_seguro().equalsIgnoreCase("auto") || 
+				polizaDTOActualizada.getTipo_seguro().equalsIgnoreCase("inmueble") || 
+				polizaDTOActualizada.getTipo_seguro().equalsIgnoreCase("celular")) {
 		
-		return new PolizaDTO(polizaActualizada);
+			poliza.setTipo_seguro(polizaDTOActualizada.getTipo_seguro());
+			poliza.setFecha_inicio(polizaDTOActualizada.getFecha_inicio());
+			poliza.setFecha_vencimiento(polizaDTOActualizada.getFecha_vencimiento());
+			poliza.setMonto_asegurado(polizaDTOActualizada.getMonto_asegurado());
+			poliza.setDetalles_adicionales(polizaDTOActualizada.getDetalles_adicionales());
+			//poliza.setUsuario(polizaActualizada.getUsuario());
+			Poliza polizaActualizada = polizaRepository.save(poliza);
+			
+			return new PolizaDTO(polizaActualizada);
+			
+		}else {
+			throw new BadRequestException("El Tipo de Seguro debe ser auto, inmueble o celular.");
+		}
+		
+		
 		
 	}
 	
